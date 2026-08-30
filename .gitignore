@@ -1,0 +1,31 @@
+@"
+*.iml
+
+# Android Studio / Gradle local files
+.gradle/
+.idea/
+local.properties
+build/
+app/build/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Local deployment helper
+tools/push_filters.ps1
+
+# signing credentials
+*.jks
+*.keystore
+keystore.properties
+
+.env
+.env.*
+secrets.properties
+
+# private keys
+*.pem
+*.p12
+*.key
+"@ | Set-Content ".gitignore"

@@ -1,0 +1,43 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.cleanstream.engine'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.cleanstream.engine"
+        minSdk 21
+        targetSdk 28
+        versionCode 14
+        versionName "0.1.0-beta.1"
+    }
+
+    // The source uses framework APIs only (no AndroidX). Keep it lean.
+    buildFeatures {
+        buildConfig true
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    buildTypes {
+        debug {
+            // debuggable, signed with the auto debug key — fine for bench installs
+            minifyEnabled false
+        }
+        release {
+            minifyEnabled false
+        }
+    }
+
+    lint {
+        abortOnError false
+        checkReleaseBuilds false
+    }
+}
+
+// No dependencies block needed — pure framework app.

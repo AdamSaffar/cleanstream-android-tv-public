@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="a11y_desc">Reads the title of the show you are watching so CleanStream can load the matching filter. Reads text only; never controls or blocks apps.</string>
+</resources>
