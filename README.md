@@ -8,6 +8,8 @@ The current beta contains **more than 700 prepared Netflix titles**. For each su
 
 Although this beta library was prepared around Netflix for practical reasons, the broader CleanStream concept is not limited to Netflix. The filtering pipeline produces timestamped filter data, while the runtime model is built around ordinary playback controls: observing position, muting and restoring audio, and moving past selected ranges. With a validated integration layer for another streaming application, the same model could be extended to other services on supported Android-based television platforms.
 
+https://github.com/user-attachments/assets/e3351436-4fb5-418a-bd67-4c0532fb5025
+
 ## The vision
 
 CleanStream is intended for viewers and families who want a more deliberate relationship with the media in their homes. It is meant to serve people who may enjoy a film or series while still preferring to avoid certain language, sexual material, or other selected content categories.
@@ -25,41 +27,7 @@ CleanStream combines several forms of filtering that work from the same timed fi
 - **Dynamic synchronization recovery** after seeking, buffering, and supported ad transitions.
 - **An Android TV catalog** with search, genre rows, and poster artwork for the prepared title library.
 
-The objective is not merely to remove content. It is to do so with enough temporal precision that dialogue, story structure, and the viewer's sense of continuity remain as intact as possible.
-
-## The filtering pipeline
-
-The Android TV application is the playback layer of CleanStream, but the most substantial work occurs earlier in the filtering pipeline. That pipeline is responsible for transforming source subtitle and timing material into the per-title JSON files that drive every caption replacement, mute, and skip decision.
-
-Its current tools include:
-
-- `ttml_profanity.py`
-- `qwen3_engine.py`
-- `cleanstream_build_mutes.py`
-- `cleanstream_build_skips.py`
-- `cleanstream_build_skips_batched.py`
-- `cleanstream_orchestrator`
-
-Together, these tools form a multi-stage workflow: they ingest subtitle and timing material, identify candidate moments, establish word-level or scene-level timing, generate mute and skip schedules, and write a finished filter file for review and deployment. That workflow is what makes a library of hundreds of prepared titles possible.
-
-### Why the pipeline matters
-
-Commercial filtering services often depend on substantial manual editorial work. CleanStream investigates a different direction: automating as much of the preparation process as possible while keeping the resulting data concrete, inspectable, and correctable on a title-by-title basis.
-
-The practical advantage is scale. Rather than requiring every title to be fully assembled by hand, the pipeline can prepare a large initial library and leave room for targeted review where errors, omissions, or false positives are discovered. The technical advantage is precision: a filter file can preserve the exact times at which a word should be redacted, a mute should begin, or a scene should be skipped.
-
-### How the pipeline should be presented
-
-The filtering pipeline deserves its own repository. It has a distinct purpose, a separate execution environment, different dependencies, and a different audience from the Android TV app. Keeping it separate will make both projects easier to understand:
-
-| Repository | Purpose |
-| --- | --- |
-| **CleanStream Android TV** | The television application, playback synchronization, catalog interface, and local filter-file runtime. |
-| **CleanStream Filter Pipeline** | The multi-stage processing tools that create and validate `filter_*.json` files. |
-
-This is a common open-source arrangement: one repository contains the product that users run, while another contains the generation, data-processing, or research pipeline that produces the product's inputs. GitHub does not need a special feature to connect them; each repository can link clearly to the other in its README, release notes, and documentation.
-
-When the pipeline repository is ready, add a direct link here along with a diagram of its stages, its dependency requirements, an explanation of its inputs and outputs, and a small non-copyrighted sample filter. That repository should be where the project explains its most original technical work in depth.
+The goal is not simply to remove unwanted content, but to filter it precisely enough that the surrounding dialogue, story, and overall viewing experience remain as uninterrupted as possible.
 
 ## How the Android TV app works
 
@@ -71,19 +39,37 @@ The most difficult part of this process is preserving synchronization when playb
 
 ## CleanStream in action
 
-The strongest public demonstration of CleanStream will be a small collection of clear before-and-after examples. Each example should be short, accurately labeled, and selected carefully so that it demonstrates the feature without becoming graphic or difficult to publish.
+The demonstrations below show CleanStream operating during normal Netflix playback. Each example compares the original playback with the same moment using CleanStream's filtering system.
 
-| Demonstration | Before filter | After filter | What it demonstrates |
-| --- | --- | --- | --- |
-| **Profanity-heavy dialogue** | Add link when available | Add link when available | Caption redaction and the narrow timing of a mute window. |
-| **Visual-content skip** | Add link when available | Add link when available | A non-graphic scene-skip range and the return to properly synchronized playback. |
-| **Mixed filtering** | Add link when available | Add link when available | Captions, a mute window, and a skip working together in one sequence. |
+### 1. Word-level profanity filtering
 
-Use only footage, screenshots, or recreations that you are authorized to distribute. If licensing a real film or television clip is impractical, a recreated demonstration with an on-screen timing visualization can still communicate the technology effectively.
+**The Big Lebowski** demonstrates CleanStream's word-level profanity handling. Flagged words are muted and visually redacted while the surrounding dialogue remains audible.
+
+**Original playback**
+
+https://github.com/user-attachments/assets/9226ca80-6ed0-4987-9124-28e72cf794f0
+
+**CleanStream enabled**
+
+https://github.com/user-attachments/assets/63b82267-ad20-4722-938d-dafefdbfabb6
+
+---
+
+### 2. Scene skipping
+
+**The Vow** demonstrates CleanStream's scene-skipping system. The configured scene range is bypassed automatically, with playback resuming at the intended point in the title.
+
+**Original playback**
+
+https://github.com/user-attachments/assets/944bd337-b287-456f-9472-d29f77fe2076
+
+**CleanStream enabled**
+
+https://github.com/user-attachments/assets/c4c374a0-6edb-4869-8f4c-56479ef3b152
 
 ## Supported platforms
 
-The present release targets **Android TV** and **Google TV**. These environments provide the Android application model and system capabilities on which the current playback layer depends.
+The current release supports **Android TV** and **Google TV**, which provide the Android framework and system features required by CleanStream’s playback and filtering components.
 
 | Platform | Status | Explanation |
 | --- | --- | --- |
@@ -93,13 +79,13 @@ The present release targets **Android TV** and **Google TV**. These environments
 | Tizen OS | Evaluated; unsupported | A separate Tizen application and synchronization implementation would be required. |
 | tvOS | Evaluated; unsupported | Apple TV would require an independent tvOS application and a different system-integration strategy. |
 
-The distinction is important: CleanStream's filtering concept may be broadly applicable, but the current application is an Android implementation. Extending the product to another platform would require more than rebuilding the same code for a new device.
+CleanStream’s filtering model could potentially be adapted to other platforms, but the current application is built specifically for Android. Supporting a different platform would require a separate integration and compatibility effort rather than simply rebuilding the existing app for another device.
 
 ## Limitations
 
-CleanStream is designed to be useful, not infallible. The filtering process can miss content, flag content that a viewer would not consider objectionable, or produce imperfect timing when the available source material is ambiguous. Context is especially difficult: a word can be harmless in one setting and inappropriate in another, while an ostensibly obvious word can be part of dialogue a viewer would prefer to retain.
+CleanStream is designed to improve the viewing experience, but its filtering is not perfect. It may occasionally miss content, flag material unnecessarily, or apply a filter at an imperfect time when the source material is unclear. Context can also be difficult to interpret, since the same word or scene may be acceptable in one situation but inappropriate in another.
 
-The project also depends on changing external conditions. Device firmware, streaming-app updates, buffering behavior, advertisements, and media-session behavior can create new synchronization edge cases. The current beta has been tested through representative playback, seeking, skip, and ad-recovery scenarios, but it should not be treated as a universal compatibility guarantee.
+CleanStream also relies on external systems that can change over time. Device firmware, streaming-app updates, buffering behavior, advertisements, and media-session changes may introduce new synchronization issues. The current beta has been tested across common playback, seeking, skipping, and ad-recovery scenarios, but compatibility cannot be guaranteed in every situation.
 
 Finally, the catalog is limited by the prepared filter library. A title can be filtered only when a corresponding filter file exists and has been installed on the device.
 
@@ -112,7 +98,7 @@ This technical beta is distributed as a signed Android APK together with a separ
 - An Android TV or Google TV device with ADB enabled.
 - Android Platform Tools on a computer that can connect to the device.
 - The signed CleanStream APK from the release.
-- The matching filter pack, extracted into a folder containing `filter_*.json` files.
+- The matching filter pack, extracted into a folder containing filter files.
 - A valid Netflix account and the Netflix application installed on the television.
 
 ### First-time setup
@@ -150,20 +136,8 @@ Replace the placeholders below with your own device address and file paths.
 
 Repeat this setup only after uninstalling CleanStream, clearing its app data, factory-resetting the device, or replacing the filter pack with a newer release.
 
-### Updating
-
-Install a newer signed APK over the existing release installation, then copy newer filter files to the same folder when a new filter pack is published. Preserve a backup of the original filter pack before manually modifying any JSON files.
-
-> **Note:** Debug APKs and signed release APKs have different signing certificates. Android cannot ordinarily install one over the other as an update. Moving from a debug build to the signed release may require uninstalling the debug app first, which also removes local app data and filters.
-
 ## Permissions and local operation
 
 CleanStream uses an overlay to draw its replacement captions and a notification-listener component to observe the active Android media session. The current technical beta also uses `READ_LOGS`, granted through ADB, as part of its ad-boundary diagnostics. These requirements reflect the present Android implementation and would need to be reconsidered for a consumer-oriented release.
 
 The app works from locally installed filter files. It does not provide a Netflix subscription, redistribute Netflix video, or alter the underlying stream. Users remain responsible for their own streaming access and for ensuring that any filter packs, subtitle-derived materials, screenshots, or demonstration clips they distribute are handled lawfully.
-
-## Project notes
-
-CleanStream is independent and is not affiliated with, endorsed by, or sponsored by Netflix, VidAngel, ClearPlay, Google, Amazon, Samsung, or Apple. Netflix and the names of other services are trademarks of their respective owners.
-
-No software license has been selected for this repository yet. Until a license is added, readers should not assume that copying, redistributing, or modifying the source code is permitted.
